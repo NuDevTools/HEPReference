@@ -23,6 +23,12 @@ CPMAddPackage(
 )
 add_library(json::json ALIAS nlohmann_json)
 
+CPMAddPackage(
+    NAME cpr
+    GITHUB_REPOSITORY libcpr/cpr
+    GIT_TAG 1.7.2
+)
+
 # Install testing framework
 if(ENABLE_TESTING OR ENABLE_FUZZING)
     # Catch2
