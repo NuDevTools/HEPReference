@@ -74,6 +74,7 @@ inline void from_json(const json &j, RefType &type) {
 class Reference {
     public:
         Reference() = default;
+        Reference(std::string description) : m_description{description} {}
 
         template<typename OStream>
         friend OStream& operator<<(OStream &os, const Reference &ref) {
@@ -99,12 +100,16 @@ class Reference {
             return os;
         }
 
+        const std::string& Description() const { return m_description; }
+        std::string& Description() { return m_description; }
+
         friend struct YAML::convert<HEPReference::Reference>;
         friend void to_json(json&, const Reference&);
         friend void from_json(const json&, Reference&);
+        std::string Id() const { return m_id; }
         
     private:
-        std::string m_id{};
+        std::string m_id{}, m_description{};
         RefType m_type{RefType::Unknown};
         std::vector<std::string> m_authors{};
         std::string m_title{};

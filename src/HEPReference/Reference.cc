@@ -12,7 +12,8 @@ void HEPReference::to_json(json &j, const Reference &ref) {
              {"number", ref.m_number},
              {"pages", ref.m_pages},
              {"month", ref.m_month},
-             {"year", ref.m_year}};
+             {"year", ref.m_year},
+             {"description", ref.m_description}};
 }
 
 void HEPReference::from_json(const json &j, Reference &ref) {
@@ -29,4 +30,5 @@ void HEPReference::from_json(const json &j, Reference &ref) {
     j.at("pages").get_to(ref.m_pages);
     j.at("month").get_to(ref.m_month);
     j.at("year").get_to(ref.m_year);
+    j.at("description").get_to(ref.m_description);
 }
