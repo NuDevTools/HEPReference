@@ -5,6 +5,17 @@ CPMFindPackage(
 )
 add_library(fmt::fmt ALIAS fmt)
 
+CPMFindPackage(
+    NAME spdlog
+    GIT_TAG "v1.8.5"
+    GITHUB_REPOSITORY gabime/spdlog
+    OPTIONS
+        "SPDLOG_COMPILED_LIB ON"
+        "SPDLOG_FMT_EXTERNAL ON"
+        "SPDLOG_BUILD_SHARED ON"
+)
+add_library(spdlog::spdlog ALIAS spdlog)
+
 CPMAddPackage(
     NAME yaml-cpp
     GITHUB_REPOSITORY jbeder/yaml-cpp
@@ -27,6 +38,24 @@ CPMAddPackage(
     NAME cpr
     GITHUB_REPOSITORY libcpr/cpr
     GIT_TAG 1.7.2
+)
+
+CPMAddPackage(
+    NAME pugixml
+    GITHUB_REPOSITORY zeux/pugixml
+    VERSION 1.11.4
+)
+
+CPMAddPackage(
+    NAME range-v3
+    GITHUB_REPOSITORY ericniebler/range-v3
+    GIT_TAG 0.12.0
+    OPTIONS
+        "RANGE_V3_DOCS OFF"
+        "RANGE_V3_TESTS OFF"
+        "RANGE_V3_EXAMPLES OFF"
+        "RANGE_V3_PERF OFF"
+        "RANGE_V3_HEADER_CHECKS OFF"
 )
 
 # Install testing framework
