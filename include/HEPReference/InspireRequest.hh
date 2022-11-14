@@ -2,6 +2,7 @@
 #define HEPREFERNCE_INSPIRE_REQUEST
 
 #include "HEPReference/Request.hh"
+#include "HEPReference/ArxivRegex.hh"
 #include "fmt/format.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -38,7 +39,8 @@ enum class InspireFormat {
     json,
     bibtex,
     latex_eu,
-    latex_us
+    latex_us,
+    cv
 };
 
 class InspireRequest : Request {
@@ -97,6 +99,31 @@ class InspireRequest : Request {
             return GenerateCitations(matches, format);
         }
 
+        std::string GenerateCV(const std::string &author,[[maybe_unused]] InspireFormat format=InspireFormat::cv) {
+            std::string tail = "literature?q=a%20" + author ;
+            std::string url = fmt::format(base_url, tail);
+            spdlog::info("Request url: {}", url);
+            // SetOption(cpr::Header{{"accept", "text/vnd+inspire.html+html"}});
+            SetOption(cpr::Header{{"accept", "application/json"}});
+            return Get(url).text;
+        }
+
+        std::string BibtexEntry(const std::string &query, InspireFormat format=InspireFormat::bibtex) {
+            static std::regex doi_id(R"(^10.\d{4,9}/[-._;()/:A-Za-z0-9]+$)");
+            static std::regex inspire_id(R"([-A-Za-z]+:\d{4}[a-z]{2,3})");
+
+            InspireIdentifier id;
+            if(HepReference::arxiv::Validate(query)) id = InspireIdentifier::arxiv;
+            else if(std::regex_search(query, doi_id)) id = InspireIdentifier::doi;
+            else if(std::regex_search(query, inspire_id)) id = InspireIdentifier::uid;
+            else {
+                throw std::runtime_error(fmt::format("HEPReference::InspireRequest: Invalid ID {}", query));
+            }
+
+            spdlog::debug("Getting bibtex entry for {} with id {}", query, ConvertIdentifier(id));
+            return SingleRecord(id, query, format).text;
+        }
+
     private:
         std::string FileContents(const std::string &filename) const {
             std::ifstream in(filename, std::ios::in | std::ios::binary);
@@ -112,23 +139,6 @@ class InspireRequest : Request {
             in.read(&contents[0], static_cast<long>(contents.size()));
             in.close();
             return contents;
-        }
-
-        std::string BibtexEntry(const std::string &query, InspireFormat format) {
-            static std::regex arxiv_id(R"(\d{4}\.\d{4,}|(?:hep-(?:ph|th|ex)|nucl-(?:th|ex))\/\d+)");
-            static std::regex doi_id(R"(^10.\d{4,9}/[-._;()/:A-Za-z0-9]+$)");
-            static std::regex inspire_id(R"([-A-Za-z]+:\d{4}[a-z]{2,3})");
-
-            InspireIdentifier id;
-            if(std::regex_search(query, arxiv_id)) id = InspireIdentifier::arxiv;
-            else if(std::regex_search(query, doi_id)) id = InspireIdentifier::doi;
-            else if(std::regex_search(query, inspire_id)) id = InspireIdentifier::uid;
-            else {
-                throw std::runtime_error(fmt::format("HEPReference::InspireRequest: Invalid ID {}", query));
-            }
-
-            spdlog::debug("Getting bibtex entry for {} with id {}", query, ConvertIdentifier(id));
-            return SingleRecord(id, query, format).text;
         }
 
         cpr::Response SingleRecord(InspireIdentifier id, const std::string &query, InspireFormat format) {
@@ -181,6 +191,8 @@ class InspireRequest : Request {
                     return "format=latex-eu";
                 case InspireFormat::latex_us:
                     return "format=latex-us";
+                case InspireFormat::cv:
+                    return "format=cv";
             };
             return "Unknown";
         }
