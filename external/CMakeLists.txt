@@ -1,13 +1,13 @@
-CPMFindPackage(
+CPMAddPackage(
     NAME fmt
-    GIT_TAG 7.1.3
+    GIT_TAG 10.1.1
     GITHUB_REPOSITORY fmtlib/fmt
 )
 add_library(fmt::fmt ALIAS fmt)
 
-CPMFindPackage(
+CPMAddPackage(
     NAME spdlog
-    GIT_TAG "v1.8.5"
+    GIT_TAG "v1.12.0"
     GITHUB_REPOSITORY gabime/spdlog
     OPTIONS
         "SPDLOG_COMPILED_LIB ON"
@@ -38,6 +38,13 @@ CPMAddPackage(
     NAME cpr
     GITHUB_REPOSITORY libcpr/cpr
     GIT_TAG 1.7.2
+)
+
+CPMAddPackage(
+    NAME NuHepMC_CPPUtils
+    GITHUB_REPOSITORY NuHepMC/cpputils
+    GIT_TAG main
+    OPTIONS "NuHepMC_CPPUtils_BUILTIN_HEPMC3 ON"
 )
 
 CPMAddPackage(

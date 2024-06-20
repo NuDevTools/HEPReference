@@ -9,7 +9,6 @@
 #pragma GCC diagnostic ignored "-Wuseless-cast"
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #include "range/v3/all.hpp"
-#include "spdmon/spdmon.hh"
 #pragma GCC diagnostic pop
 
 #include <set>
@@ -79,7 +78,7 @@ class InspireRequest : Request {
             }
             spdlog::info("Found {} unique articles", unique_articles.size());
             std::string result = "";
-            for(const auto &[logger, article] : spdmon::LogProgress(unique_articles)) {
+            for(const auto &article : unique_articles) {
                 try {
                     result += BibtexEntry(article, format);
                 } catch(std::runtime_error &e) {
@@ -103,8 +102,8 @@ class InspireRequest : Request {
             std::string tail = "literature?q=a%20" + author ;
             std::string url = fmt::format(base_url, tail);
             spdlog::info("Request url: {}", url);
-            // SetOption(cpr::Header{{"accept", "text/vnd+inspire.html+html"}});
-            SetOption(cpr::Header{{"accept", "application/json"}});
+            SetOption(cpr::Header{{"accept", "text/vnd+inspire.html+html"}});
+            // SetOption(cpr::Header{{"accept", "application/json"}});
             return Get(url).text;
         }
 
@@ -152,7 +151,7 @@ class InspireRequest : Request {
             return Get(url);
         }
 
-        std::string ConvertIdentifier(InspireIdentifier id) {
+        std::string ConvertIdentifier(InspireIdentifier id) const {
             switch(id) {
                 case InspireIdentifier::uid:
                     return "literature/";
@@ -181,7 +180,7 @@ class InspireRequest : Request {
             }
             return "Unknown";
         }
-        std::string FormatToString(InspireFormat format) {
+        std::string FormatToString(InspireFormat format) const {
             switch(format) {
                 case InspireFormat::json:
                     return "format=json";
